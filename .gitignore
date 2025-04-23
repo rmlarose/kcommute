@@ -172,3 +172,8 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# (HamLib) data files.
+.hdf5
+.tar.gz
+.zip
