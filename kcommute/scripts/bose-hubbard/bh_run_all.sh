@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 fname="BH_D-1_d-4.hdf5"
 
