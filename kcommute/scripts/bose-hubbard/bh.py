@@ -167,7 +167,7 @@ if __name__=="__main__":
     
     print("===== Starting bh.py =====")
     # graphdir = "../condmat_graphs/"
-    outdir   = "../bh/"
+    outdir   = "."
 
     # Grids file
     fname_grids = "../condmat_graphs/Grids.hdf5"
