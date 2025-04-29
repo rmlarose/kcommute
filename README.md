@@ -12,3 +12,5 @@ pip install -e .
 ```
 
 then run the .py/.ipynb files in `kcommute/scripts` to reproduce results from the paper.
+Some scripts might require data files from [HamLib](https://arxiv.org/abs/2306.13126).
+To download these files, run the script at `kcommute/scripts/data/input/`.
