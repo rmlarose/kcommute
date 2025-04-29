@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import sys
-sys.path.append('../../utility')
+
 
 
 #!/usr/bin/env python
@@ -13,7 +12,7 @@ import math
 import itertools
 import sys
 import h5py
-from hamlib_snippets import save_graph_hdf5
+#from shotcounts.hamlib_interface import save_graph_hdf5
 
 nribbons = 30  # number of ribbons of every width
 
@@ -190,6 +189,8 @@ def generate_1d_grids(nmax=np.inf,nmin=0):
     r4 = range(200, 1001, 100)
     prefix = 'graph-1D-grid'
     postfix = lambda x : f'Lx-{x}'
+
+    graph_dict = {}
     for i in itertools.chain(r1, r2, r3, r4):
         if i>nmax or i<nmin:
             continue        
@@ -205,7 +206,9 @@ def generate_1d_grids(nmax=np.inf,nmin=0):
         gridnodes = list(Gnp_grid.nodes)
         grid_pos = {str(nodes[i]):gridnodes[i] for i in range(0,i)}
         
-        _save_to_files(Gp, Gnp, grid_pos, prefix, postfix(i))
+        #_save_to_files(Gp, Gnp, grid_pos, prefix, postfix(i))
+        graph_dict[prefix + '_' + postfix(i)] = (Gp, Gnp, grid_pos)
+    return graph_dict
 
         
         
@@ -214,7 +217,8 @@ def generate_2d_square_grids(): #(nmax=np.inf,nmin=0):
     prefix = 'graph-2D-grid'
     postfix = lambda x, y : f'Lx-{x}_Ly-{y}'
     # square boundaries
-    for i in [5, 10, 15, 20, 25, 30]:
+    graph_dict = {}
+    for i in range(2, 33):
         # if i**2>nmax or i**2<nmin:
         #     continue
             
@@ -224,31 +228,36 @@ def generate_2d_square_grids(): #(nmax=np.inf,nmin=0):
         Gp, grid_pos_p = snaking_2d_square_grids(Gp_grid)
         Gnp, grid_pos = snaking_2d_square_grids(Gnp_grid)
         
-        _save_to_files(Gp, Gnp, grid_pos, prefix, postfix(i, i))
+        # _save_to_files(Gp, Gnp, grid_pos, prefix, postfix(i, i))
+        graph_dict[prefix + '_' + postfix(i,i)] = (Gp, Gnp, grid_pos)
+    return graph_dict
         
     # ribbon grids
-    #for x in range(2, 6):
-    #    maxval = int(np.ceil(1000 / x))
-    #    for y in np.linspace(x, maxval, nribbons, dtype=int):
-#   #          print(x,y)
-#
-#            # if x*y>nmax or x*y<nmin or x==y:
-#            #     continue
-#            Gp_grid = nwx.grid_graph(dim=(x, y), periodic=True)
-#            Gnp_grid = nwx.grid_graph(dim=(x, y), periodic=False)
-#            
-#            Gp, grid_pos_p = snaking_2d_square_grids(Gp_grid)
-#            Gnp, grid_pos = snaking_2d_square_grids(Gnp_grid)            
-#            
-#            _save_to_files(Gp, Gnp, grid_pos, prefix, postfix(x, y))
+    graph_dict = {}
+    for x in range(2, 6):
+        maxval = int(np.ceil(1000 / x))
+        for y in np.linspace(x, maxval, nribbons, dtype=int):
+#             print(x,y)
 
- 
+            # if x*y>nmax or x*y<nmin or x==y:
+            #     continue
+            Gp_grid = nwx.grid_graph(dim=(x, y), periodic=True)
+            Gnp_grid = nwx.grid_graph(dim=(x, y), periodic=False)
             
+            Gp, grid_pos_p = snaking_2d_square_grids(Gp_grid)
+            Gnp, grid_pos = snaking_2d_square_grids(Gnp_grid)            
+            
+            # _save_to_files(Gp, Gnp, grid_pos, prefix, postfix(x, y))
+            graph_dict[prefix + '_' + postfix(i, i)] = (Gp, Gnp, grid_pos)
+    return graph_dict
+
+
 def generate_2d_triag_grids(): #(nmax=np.inf,nmin=0):
     print('Generating 2D triangular grids ...')
     prefix = 'graph-2D-triag'
     postfix = lambda x, y : f'Lx-{x}_Ly-{y}'
     # square boundaries
+    graph_dict = {}
     for i in range(5, 47): # start at 5 to allow periodic; 46x46 in fact is ~1000 nodes
         # if i**2>1.5*nmax: # Eliminate most, before creating any graph
         #     continue
@@ -267,8 +276,10 @@ def generate_2d_triag_grids(): #(nmax=np.inf,nmin=0):
         Gnp_grid = nwx.triangular_lattice_graph(m=i, n=i, periodic=False)
         Gnp, grid_pos = snaking_2d_triag_grids(Gnp_grid)
         
-        _save_to_files(Gp, Gnp, grid_pos,prefix, postfix(i, i))
-        
+        # _save_to_files(Gp, Gnp, grid_pos,prefix, postfix(i, i))
+        graph_dict[prefix + '_' + postfix(i, i)] = (Gp, Gnp, grid_pos)
+    return graph_dict
+
     # # ribbon grids
     # for x in range(3, 6):
     #     maxyval = int(np.ceil(1000 / x))
@@ -294,6 +305,7 @@ def generate_2d_hex_grids(): #(nmax=np.inf,nmin=0):
     prefix = 'graph-2D-hex'
     postfix = lambda x, y : f'Lx-{x}_Ly-{y}'
     # square boundaries
+    graph_dict = {}
     for i in range(2, 33, 2):  # even n required for periodic
         # if i**2>1.5*nmax: # Eliminate most, before creating any graph
         #     continue
@@ -309,8 +321,10 @@ def generate_2d_hex_grids(): #(nmax=np.inf,nmin=0):
         Gnp_grid = nwx.hexagonal_lattice_graph(m=i, n=i, periodic=False)
         Gnp, grid_pos = snaking_2d_hex_grids(Gnp_grid)
         
-        _save_to_files(Gp, Gnp, grid_pos, prefix, postfix(i, i))
-        
+        # _save_to_files(Gp, Gnp, grid_pos, prefix, postfix(i, i))
+        graph_dict[prefix + '_' + postfix(i, i)] = (Gp, Gnp, grid_pos)
+    return graph_dict
+
 #     # ribbon grids
 #     def round_up_to_even(f): # only even n is allowed
 #         return math.ceil(f / 2.) * 2
@@ -339,6 +353,7 @@ def generate_3d_square_grids(nmax=np.inf,nmin=0):
     prefix = 'graph-3D-grid'
     postfix = lambda x, y, z : f'Lx-{x}_Ly-{y}_Lz-{z}'
     # cube grids
+    graph_dict = {}
     for i in range(2, 11):
         if i**3>nmax or i**3<nmin:
             continue
@@ -348,19 +363,33 @@ def generate_3d_square_grids(nmax=np.inf,nmin=0):
         Gp, grid_pos_p = snaking_3d_square_grids(Gp_grid,i)
         Gnp, grid_pos = snaking_3d_square_grids(Gnp_grid,i)
                 
-        _save_to_files(Gp, Gnp, grid_pos, prefix, postfix(i, i, i))  
+        # _save_to_files(Gp, Gnp, grid_pos, prefix, postfix(i, i, i))
+        graph_dict[prefix + '_' + postfix(i, i, i)] = (Gp, Gnp, grid_pos)
+    return graph_dict
 
+
+def generate_all_graphs():
+    all_graph_dict = {}
+    all_graph_dict.update(generate_1d_grids())
+    all_graph_dict.update(generate_2d_triag_grids())
+    all_graph_dict.update(generate_2d_hex_grids())
+    all_graph_dict.update(generate_2d_square_grids())
+    all_graph_dict.update(generate_3d_square_grids())
+    return all_graph_dict
 
 
 def main(graph_dataset_name=None):
-    
-    if graph_dataset_name is None:
-        #generate_1d_grids()
-        generate_2d_square_grids()
-        #generate_2d_triag_grids()
-        #generate_2d_hex_grids()
-        #generate_3d_square_grids()
-        return
+
+    all_graphs = generate_all_graphs()
+    for key in all_graphs.keys():
+        print(key)
+    # if graph_dataset_name is None:
+    #     generate_1d_grids()
+    #     generate_2d_square_grids()
+    #     generate_2d_triag_grids()
+    #     generate_2d_hex_grids()
+    #     generate_3d_square_grids()
+    #     return
 
     # if graph_dataset_name=="30u":
     #     maxn = 30

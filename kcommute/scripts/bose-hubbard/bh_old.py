@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import sys
-sys.path.append('../../utility')
-import hamlib_snippets
+#sys.path.append('../../utility')
+import kcommute.hamlib_interface as hamlib_snippets
 
 import os
 from copy import deepcopy
@@ -17,6 +17,8 @@ from itertools import product
 from openfermion import count_qubits
 
 import datetime
+
+from generate_grids import generate_all_graphs
 
 
 
@@ -56,7 +58,7 @@ def bose_hubbard_bosop(thegraph,ssid_shift=0):
 #     return ftype,varpairs
 
 
-def generate_all_bh(graphs_fname, outdir, start_keystr=None): #, max_nqub=math.inf, min_nqub=0):
+def generate_all_bh(all_graphs, outdir, start_keystr=None): #, max_nqub=math.inf, min_nqub=0):
 
     # Start time
     start = datetime.datetime.now()
@@ -71,7 +73,7 @@ def generate_all_bh(graphs_fname, outdir, start_keystr=None): #, max_nqub=math.i
         still_skipping = True
 
     # for fname in os.listdir(graphdir):
-    for graph_keystr in hamlib_snippets.get_hdf5_keys(graphs_fname):
+    for graph_keystr in all_graphs.keys():
         
         print("--",graph_keystr,flush=True)
         if still_skipping:
@@ -86,7 +88,8 @@ def generate_all_bh(graphs_fname, outdir, start_keystr=None): #, max_nqub=math.i
 
 
         # Get graph
-        thegraph = hamlib_snippets.read_graph_hdf5(graphs_fname,graph_keystr)
+        # thegraph = hamlib_snippets.read_graph_hdf5(graphs_fname,graph_keystr)
+        thegraph = all_graphs[graph_keystr][1] # Get the non-periodic one.
         nnodes = thegraph.number_of_nodes()
 
         # # Calc number of nodes
@@ -164,7 +167,7 @@ if __name__=="__main__":
     
     print("===== Starting bh.py =====")
     # graphdir = "../condmat_graphs/"
-    outdir   = "../bh/"
+    outdir   = "."
 
     # Grids file
     fname_grids = "../condmat_graphs/Grids.hdf5"
@@ -174,7 +177,8 @@ if __name__=="__main__":
         keystr_start = sys.argv[1]
         print(f"*** Starting from keystr={keystr_start}")
 
-    generate_all_bh(fname_grids,outdir, keystr_start)
+    all_graphs = generate_all_graphs()
+    generate_all_bh(all_graphs, outdir, keystr_start)
 
 
 
