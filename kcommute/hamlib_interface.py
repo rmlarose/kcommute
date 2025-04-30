@@ -166,3 +166,36 @@ def save_openfermion_hdf5(qubop, fname_hdf5, str_key, overwrite=True):
             f[str_key] = str(qubop)
 
     return
+
+
+def save_graph_hdf5(G, fname_hdf5, str_key, overwrite=True, grid_pos=None):
+    """Save networkx graph to the appropriate hdf5 file.
+    Note: This function uses 'a'==APPEND mode. This means that if a particular
+            key is already present in the hdf5 file, it will throw an error.
+            Hence if you're running the same code a second time, you will need
+            to delete the hdf5 file first.
+    """
+    es = list(G.edges)
+
+    with h5py.File(fname_hdf5, 'a') as f:
+
+        if str_key in f:
+            if overwrite:
+                del f[str_key]
+                f[str_key] = np.array(es)
+        else:
+            f[str_key] = np.array(es)
+        
+        if grid_pos is None:
+            pass
+        else:
+            # Store dict{nodes: grid positions} as attribute of each graph
+            for k, v in grid_pos.items():
+                f[str_key].attrs[str(k)]=v
+    
+    return
+        # try:
+        #     f[str_key] = np.array(es)
+        # except OSError:
+        #     del f[str_key]
+        #     f[str_key] = np.array(es)

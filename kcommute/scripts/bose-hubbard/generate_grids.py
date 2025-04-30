@@ -13,7 +13,7 @@ import math
 import itertools
 import sys
 import h5py
-from hamlib_snippets import save_graph_hdf5
+from kcommute.hamlib_interface import save_graph_hdf5
 
 nribbons = 30  # number of ribbons of every width
 
@@ -355,7 +355,7 @@ def generate_3d_square_grids(nmax=np.inf,nmin=0):
 def main(graph_dataset_name=None):
     
     if graph_dataset_name is None:
-        #generate_1d_grids()
+        generate_1d_grids()
         generate_2d_square_grids()
         #generate_2d_triag_grids()
         #generate_2d_hex_grids()

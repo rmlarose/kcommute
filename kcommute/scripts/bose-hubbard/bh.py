@@ -3,7 +3,7 @@
 
 import sys
 sys.path.append('../../utility')
-import hamlib_snippets
+import kcommute.hamlib_interface as hamlib_snippets
 
 import os
 from copy import deepcopy
@@ -86,7 +86,7 @@ def generate_all_bh(graphs_fname, outdir, start_keystr=None): #, max_nqub=math.i
 
 
         # Get graph
-        thegraph = hamlib_snippets.read_graph_hdf5(graphs_fname,graph_keystr)
+        thegraph = hamlib_snippets.read_graph_hdf5(graphs_fname,graph_keystr[1:-1])
         nnodes = thegraph.number_of_nodes()
 
         # # Calc number of nodes
@@ -152,9 +152,10 @@ def generate_all_bh(graphs_fname, outdir, start_keystr=None): #, max_nqub=math.i
 
             # Categorize based on dimensionality & d (levels-per-boson)
             bh_encoded_fname = f"{outdir}/BH_D-{dimstr[0]}_d-{d}.hdf5"
-            haminst_name = "bh_" + graph_keystr + f"_U-{U}_enc-{enc}_d-{d}"
+            haminst_name = "bh_" + graph_keystr[1:-1] + f"_U-{U}_enc-{enc}_d-{d}"
             # print(haminst_name)
             hamlib_snippets.save_openfermion_hdf5(qub_op,bh_encoded_fname,haminst_name)
+
 
 
     
@@ -164,10 +165,10 @@ if __name__=="__main__":
     
     print("===== Starting bh.py =====")
     # graphdir = "../condmat_graphs/"
-    outdir   = "../bh/"
+    outdir   = "."
 
     # Grids file
-    fname_grids = "../condmat_graphs/Grids.hdf5"
+    fname_grids = "Grids.hdf5"
 
     keystr_start = None
     if len(sys.argv)>1:
