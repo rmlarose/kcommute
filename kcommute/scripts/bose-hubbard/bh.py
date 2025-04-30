@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import sys
-#sys.path.append('../../utility')
+sys.path.append('../../utility')
 import kcommute.hamlib_interface as hamlib_snippets
 
 import os
@@ -17,8 +17,6 @@ from itertools import product
 from openfermion import count_qubits
 
 import datetime
-
-from generate_grids import generate_all_graphs
 
 
 
@@ -58,7 +56,7 @@ def bose_hubbard_bosop(thegraph,ssid_shift=0):
 #     return ftype,varpairs
 
 
-def generate_all_bh(all_graphs, outdir, start_keystr=None): #, max_nqub=math.inf, min_nqub=0):
+def generate_all_bh(graphs_fname, outdir, start_keystr=None): #, max_nqub=math.inf, min_nqub=0):
 
     # Start time
     start = datetime.datetime.now()
@@ -73,7 +71,7 @@ def generate_all_bh(all_graphs, outdir, start_keystr=None): #, max_nqub=math.inf
         still_skipping = True
 
     # for fname in os.listdir(graphdir):
-    for graph_keystr in all_graphs.keys():
+    for graph_keystr in hamlib_snippets.get_hdf5_keys(graphs_fname):
         
         print("--",graph_keystr,flush=True)
         if still_skipping:
@@ -88,8 +86,7 @@ def generate_all_bh(all_graphs, outdir, start_keystr=None): #, max_nqub=math.inf
 
 
         # Get graph
-        # thegraph = hamlib_snippets.read_graph_hdf5(graphs_fname,graph_keystr)
-        thegraph = all_graphs[graph_keystr][1] # Get the non-periodic one.
+        thegraph = hamlib_snippets.read_graph_hdf5(graphs_fname,graph_keystr[1:-1])
         nnodes = thegraph.number_of_nodes()
 
         # # Calc number of nodes
@@ -155,9 +152,10 @@ def generate_all_bh(all_graphs, outdir, start_keystr=None): #, max_nqub=math.inf
 
             # Categorize based on dimensionality & d (levels-per-boson)
             bh_encoded_fname = f"{outdir}/BH_D-{dimstr[0]}_d-{d}.hdf5"
-            haminst_name = "bh_" + graph_keystr + f"_U-{U}_enc-{enc}_d-{d}"
+            haminst_name = "bh_" + graph_keystr[1:-1] + f"_U-{U}_enc-{enc}_d-{d}"
             # print(haminst_name)
             hamlib_snippets.save_openfermion_hdf5(qub_op,bh_encoded_fname,haminst_name)
+
 
 
     
@@ -167,18 +165,17 @@ if __name__=="__main__":
     
     print("===== Starting bh.py =====")
     # graphdir = "../condmat_graphs/"
-    outdir   = "../bh/"
+    outdir   = "."
 
     # Grids file
-    fname_grids = "../condmat_graphs/Grids.hdf5"
+    fname_grids = "Grids.hdf5"
 
     keystr_start = None
     if len(sys.argv)>1:
         keystr_start = sys.argv[1]
         print(f"*** Starting from keystr={keystr_start}")
 
-    all_graphs = generate_all_graphs()
-    generate_all_bh(all_graphs, outdir, keystr_start)
+    generate_all_bh(fname_grids,outdir, keystr_start)
 
 
 

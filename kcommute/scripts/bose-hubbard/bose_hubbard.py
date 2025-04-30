@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 import cirq
 import openfermion as of
 
-from shotcounts.sortedinsertion import get_si_sets
-from shotcounts.shot_metrics import r_hat_measurement_count
-from shotcounts import k_qwc
-from shotcounts.hamlib_interface import read_openfermion_hdf5, print_hdf5_structure
+from kcommute.sorted_insertion import get_si_sets
+from kcommute.shot_metrics import r_hat_measurement_count
+from kcommute.commute import compute_blocks
+from kcommute.hamlib_interface import read_openfermion_hdf5, print_hdf5_structure
 
 def get_rhats_ngroups(
     ham: of.QubitOperator, step: int, verbose: bool=False
@@ -30,7 +30,7 @@ def get_rhats_ngroups(
     ngroups = []
 
     for k in kvals:
-        blocks = k_qwc.compute_blocks(qubits, k)
+        blocks = compute_blocks(qubits, k)
         if verbose:
             print("On k =", k)
             # print("Blocks are:")

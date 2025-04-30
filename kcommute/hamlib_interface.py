@@ -114,3 +114,88 @@ def read_clause_list_hdf5(fname_hdf5: str, key: str ):
         for clause in list(np.array(f[key])):
             clause_list . append ([ v for v in clause ])
     return clause_list
+
+
+def process_keystring(inpkey):
+    """Process keystring into dictionary
+    
+    HamLib format is: 
+    {problemclass}_{varname1}-{var1}_{varnam2}-{var2}…,
+        where ‘problem class’ may include hyphens, but ‘varX’ may not.
+    """
+
+    key_to_dict = {}
+    pieces = inpkey.split('_')
+    key_to_dict['probclass'] = pieces[0]
+    for piece in pieces[1:]:
+        spl = piece.split('-')
+        val = spl[1]
+        if val.isnumeric():
+            key_to_dict[spl[0]] = float(val)
+        else:
+            key_to_dict[spl[0]] = val
+        
+
+    return key_to_dict
+
+
+def save_mat2qubit_hdf5(symbop, fname_hdf5, str_key, overwrite=True):
+    """Save mat2qubit.qSymbOp operator to hdf5 file"""
+    with h5py.File(fname_hdf5, 'a') as f:
+
+        if str_key in f:
+            if overwrite:
+                del f[str_key]
+                f[str_key] = str(symbop)
+        else:
+            f[str_key] = str(symbop)
+
+    return
+
+
+def save_openfermion_hdf5(qubop, fname_hdf5, str_key, overwrite=True):
+    """Save any openfermion operator object to hdf5 file.
+    Intended for QubitOperator and FermionOperator."""
+    with h5py.File(fname_hdf5, 'a', libver='latest') as f:
+
+        if str_key in f:
+            if overwrite:
+                del f[str_key]
+                f[str_key] = str(qubop)
+        else:
+            f[str_key] = str(qubop)
+
+    return
+
+
+def save_graph_hdf5(G, fname_hdf5, str_key, overwrite=True, grid_pos=None):
+    """Save networkx graph to the appropriate hdf5 file.
+    Note: This function uses 'a'==APPEND mode. This means that if a particular
+            key is already present in the hdf5 file, it will throw an error.
+            Hence if you're running the same code a second time, you will need
+            to delete the hdf5 file first.
+    """
+    es = list(G.edges)
+
+    with h5py.File(fname_hdf5, 'a') as f:
+
+        if str_key in f:
+            if overwrite:
+                del f[str_key]
+                f[str_key] = np.array(es)
+        else:
+            f[str_key] = np.array(es)
+        
+        if grid_pos is None:
+            pass
+        else:
+            # Store dict{nodes: grid positions} as attribute of each graph
+            for k, v in grid_pos.items():
+                f[str_key].attrs[str(k)]=v
+    
+    return
+        # try:
+        #     f[str_key] = np.array(es)
+        # except OSError:
+        #     del f[str_key]
+        #     f[str_key] = np.array(es)
