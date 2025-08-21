@@ -1,3 +1,5 @@
 cirq-core
 openfermion
 git+https://github.com/IntelLabs/mat2qubit
+quimb[tensor]
+
