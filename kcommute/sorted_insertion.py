@@ -36,19 +36,10 @@ def get_terms_ordered_by_abscoeff(op):
     return terms
 
 
-def get_si_sets(op, blocks):
+def get_si_sets(op, blocks, verbosity: int = 0):
     '''Returns grouping from sorted insertion algo.
 
-    Args:
-        op (QubitOperator): 
-        comm_method (bool): "Type" of commutation b/n pstrings
-    
-    Returns:
-        list of list of terms, for example:
-            [ [ (0,'X'), (1,'Y'), (2,'Z') ],
-                [ (3,'Z',),],
-                ...]
-
+    TODO: Add docstring and type function.
     '''
     nterms = len(op.terms)
 
@@ -73,7 +64,14 @@ def get_si_sets(op, blocks):
 
     # Loop over terms
     for i, pstring in enumerate(terms_ord):
-        #print(f"Status: On Pauli string {i} / {nterms}", end="\r")
+        if verbosity > 0:
+            print(f"Status: On Pauli string {i} / {nterms}", end="\r")
+        if verbosity > 1:
+            print(f"There are currently {len(commuting_sets)} group(s) of terms.", end="\r")
+        if verbosity > 2:
+            print(f"The groups are:")
+            for j, group in enumerate(commuting_sets):
+                print(f"Group {j + 1}: {group}")
         found_commuting_set = False
 
         # Loop over existing commuting sets
